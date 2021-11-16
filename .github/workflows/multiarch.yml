@@ -13,7 +13,7 @@ jobs:
   build-multiplatform-containerfile:
     name: Build multi-platform image using Containerfile
     env:
-      IMAGE_NAME: hello-world-multiplatform
+      IMAGE_NAME: hello-world-multiarch
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
