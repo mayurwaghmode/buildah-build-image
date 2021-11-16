@@ -33,10 +33,12 @@ jobs:
         if: matrix.install_latest
         run: |
           bash buildah-build-image/.github/install_latest_buildah.sh
+          
       - name: Install qemu dependency
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static
+          
       - name: Create Containerfile
         run: |
           cat > Containerfile<<EOF
@@ -44,6 +46,7 @@ jobs:
           RUN echo "hello world"
           ENTRYPOINT [ "sh", "-c", "echo -n 'Machine: ' && uname -m && echo -n 'Bits: ' && getconf LONG_BIT && echo 'goodbye world'" ]
           EOF
+          
       - name: Build Image
         id: build_image_multiplatform
         uses: redhat-actions/buildah-build@v2
@@ -53,11 +56,13 @@ jobs:
           platform: ${{ matrix.platform }}
           containerfiles: |
             ./Containerfile
+            
       - name: Echo Outputs
         run: |
           echo "Image: ${{ steps.build_image_multiplatform.outputs.image }}"
           echo "Tags: ${{ steps.build_image_multiplatform.outputs.tags }}"
           echo "Tagged Image: ${{ steps.build_image_multiplatform.outputs.image-with-tag }}"
+          
       - name: Check images created
         run: buildah images | grep '${{ env.IMAGE_NAME }}'
 
@@ -66,6 +71,7 @@ jobs:
           set -x
           buildah inspect ${{ steps.build_image_multiplatform.outputs.image }}:${{ env.IMAGE_TAG }} | jq ".OCIv1.architecture"
           buildah inspect ${{ steps.build_image_multiplatform.outputs.image }}:${{ env.IMAGE_TAG }} | jq ".Docker.architecture"
+          
       - name: Run image
         run: |
           podman run --rm ${{ steps.build_image_multiplatform.outputs.image }}:${{ env.IMAGE_TAG }}
@@ -81,6 +87,7 @@ jobs:
           password: ${{ secrets.QUAY_PWD }}
           extra-args: |
             --disable-content-trust
+            
       - name: Echo outputs
         run: |
           echo "${{ toJSON(steps.push.outputs) }}"
