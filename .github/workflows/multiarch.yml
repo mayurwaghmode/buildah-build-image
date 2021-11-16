@@ -43,7 +43,7 @@ jobs:
           EOF
       - name: Build Image
         id: build_image_multiplatform
-        uses: ./buildah-build-image/
+        uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ env.IMAGE_NAME }}
           tags: ${{ env.IMAGE_TAG }}
