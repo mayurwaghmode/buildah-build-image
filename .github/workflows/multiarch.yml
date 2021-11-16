@@ -76,8 +76,8 @@ jobs:
         uses: redhat-actions/push-to-registry@v2
         id: push
         with:
-          image: ${{ steps.build_image_multiplatform.outputs.image }}
-          tags: ${{ steps.build_image_multiplatform.outputs.tags }}
+          image: ${{ steps.build_image_multiarch.outputs.image }}
+          tags: ${{ steps.build_image_multiarch.outputs.tags }}
           registry: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAMESPACE }}
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_PWD }}
