@@ -40,8 +40,7 @@ jobs:
       - name: Create Containerfile
         run: |
           cat > Containerfile<<EOF
-          ARG ARCH
-          FROM docker.io/\${ARCH}/alpine:3.14
+          FROM docker.io/alpine:3.14
           RUN echo "hello world"
           ENTRYPOINT [ "sh", "-c", "echo -n 'Machine: ' && uname -m && echo -n 'Bits: ' && getconf LONG_BIT && echo 'goodbye world'" ]
           EOF
