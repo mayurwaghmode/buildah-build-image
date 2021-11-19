@@ -21,7 +21,19 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
-    steps:          
+    steps:  
+    
+     # Checkout buildah action github repository
+      - name: Checkout Buildah action
+        uses: actions/checkout@v2
+        with:
+          path: "buildah-build-image"
+
+      - name: Install latest buildah
+        if: matrix.install_latest
+        run: |
+          bash buildah-build-image/.github/install_latest_buildah.sh
+          
       - name: Install qemu dependency
         run: |
           sudo apt-get update
@@ -34,6 +46,7 @@ jobs:
           CMD echo "Hello World from a container running on $(uname -m);"
           EOF
         # Authenticate to container image registry to push the image
+        
       - name: Podman Login
         uses: redhat-actions/podman-login@v1
         with:
