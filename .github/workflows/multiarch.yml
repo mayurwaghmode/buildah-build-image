@@ -54,47 +54,42 @@ jobs:
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_PWD }}    
      
-      - name: Build Image
-        id: build_image_multiplatform
+      - name: Build Image for amd64
+        id: build_image_platform_amd64
         uses: redhat-actions/buildah-build@v2
         with:
-          image: ${{ env.IMAGE_NAME }}
+          image: ${{ env.IMAGE_NAME }}:linux-amd64
           tags:  ${{ env.IMAGE_TAG }}
-          archs: amd64, ppc64le
+          platform: linux/amd64
           containerfiles: |
             ./Containerfile
             
-      - name: Echo Outputs
-        run: |
-          echo "Image: ${{ steps.build_image_multiplatform.outputs.image }}"
-          echo "Tags: ${{ steps.build_image_multiplatform.outputs.tags }}"
-          echo "Tagged Image: ${{ steps.build_image_multiplatform.outputs.image-with-tag }}"
-          
+      - name: Build Image for ppc64le
+        id: build_image_platform_ppc64le
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.IMAGE_NAME }}:linux-ppc64le
+          tags:  ${{ env.IMAGE_TAG }}
+          platform: linux/ppc64le
+          containerfiles: |
+            ./Containerfile
+            
       - name: Check images created
         run: buildah images | grep '${{ env.IMAGE_NAME }}'
 
       - name: Check image metadata
         run: |
           set -x
-          buildah inspect ${{ steps.build_image_multiplatform.outputs.image }}:${{ env.IMAGE_TAG }} | jq ".OCIv1.architecture"
-          buildah inspect ${{ steps.build_image_multiplatform.outputs.image }}:${{ env.IMAGE_TAG }} | jq ".Docker.architecture"
-          
-      - name: Run image
-        run: |
-          podman run --rm ${{ steps.build_image_multiplatform.outputs.image }}:${{ env.IMAGE_TAG }}
+          buildah inspect ${{ steps.build_image_platform_amd64.outputs.image }}:${{ env.IMAGE_TAG }} | jq ".OCIv1.architecture"
+          buildah inspect ${{ steps.build_image_platform_amd64.outputs.image }}:${{ env.IMAGE_TAG }} | jq ".Docker.architecture"
+          buildah inspect ${{ steps.build_image_platform_ppc64le.outputs.image }}:${{ env.IMAGE_TAG }} | jq ".OCIv1.architecture"
+          buildah inspect ${{ steps.build_image_platform_ppc64le.outputs.image }}:${{ env.IMAGE_TAG }} | jq ".Docker.architecture"
      
-      - name: Push To Quay
-        uses: redhat-actions/push-to-registry@v2
-        id: push
-        with:
-          image: ${{ steps.build_image_multiplatform.outputs.image }}
-          tags: ${{ steps.build_image_multiplatform.outputs.tags }}
-          registry: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAMESPACE }}
-          platform: linux/ppc64le, linux/amd64
-          extra-args: |
-            --disable-content-trust
-            
-      - name: Echo outputs
+      - name: Create and add to manifest
         run: |
-          echo "${{ toJSON(steps.push.outputs) }}"
+          buildah manifest create ${{ env.IMAGE_NAME }}
+          buildah manifest add ${{ env.IMAGE_NAME }} ${{ env.IMAGE_NAME }}:linux-amd64
+          buildah manifest add ${{ env.IMAGE_NAME }} ${{ env.IMAGE_NAME }}:linux-ppc64le
+      - name: Push manifest
+        run: podman manifest push ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}  ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}  --all
           
