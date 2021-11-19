@@ -22,8 +22,6 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
-      matrix:
-        platform: ["linux/ppc64le" , "linux/amd64"]
     steps:          
       - name: Install qemu dependency
         run: |
@@ -37,14 +35,22 @@ jobs:
           RUN echo "hello world"
           ENTRYPOINT [ "sh", "-c", "echo -n 'Machine: ' && uname -m && echo -n 'Bits: ' && getconf LONG_BIT && echo 'goodbye world'" ]
           EOF
-          
+        # Authenticate to container image registry to push the image
+      - name: Podman Login
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USER }}
+          password: ${{ secrets.QUAY_PWD }}    
+     
       - name: Build Image
         id: build_image_multiplatform
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ env.IMAGE_NAME }}
-          tags: ${{ env.IMAGE_TAG }}
-          platform: ${{ matrix.platform }}
+          tag: quay.io/mayurwaghmode111/hello-world-multiarch:latest
+          platforms: linux/amd64,linux/ppc64le
+          push: true
           containerfiles: |
             ./Containerfile
             
@@ -67,13 +73,7 @@ jobs:
         run: |
           podman run --rm ${{ steps.build_image_multiplatform.outputs.image }}:${{ env.IMAGE_TAG }}
      
-      # Authenticate to container image registry to push the image
-      - name: Podman Login
-        uses: redhat-actions/podman-login@v1
-        with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USER }}
-          password: ${{ secrets.QUAY_PWD }}
+    
           
             
       - name: Create and add to manifest
