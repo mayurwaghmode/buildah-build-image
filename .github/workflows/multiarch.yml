@@ -19,8 +19,6 @@ jobs:
       fail-fast: false
       matrix:
         platform: ["linux/ppc64le" , "linux/amd64"]
-        install_latest: [ true, false ]
-
     steps:
 
       # Checkout buildah action github repository
