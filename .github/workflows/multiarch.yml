@@ -92,6 +92,7 @@ jobs:
           image: ${{ steps.build_image_multiplatform.outputs.image }}
           tags: ${{ steps.build_image_multiplatform.outputs.tags }}
           registry: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAMESPACE }}
+          platform: ${{ matrix.platform }}
           extra-args: |
             --disable-content-trust
             
