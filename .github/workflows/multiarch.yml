@@ -78,7 +78,7 @@ jobs:
      
       # Authenticate to container image registry to push the image
       - name: Podman Login
-        uses: redhat-actions/podman-login@v2
+        uses: redhat-actions/podman-login@v1
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USER }}
@@ -86,7 +86,7 @@ jobs:
      
      
       - name: Push To Quay
-        uses: redhat-actions/push-to-registry@v1
+        uses: redhat-actions/push-to-registry@v2
         id: push
         with:
           image: ${{ steps.build_image_multiplatform.outputs.image }}
