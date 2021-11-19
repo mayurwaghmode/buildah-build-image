@@ -87,7 +87,7 @@ jobs:
      
       - name: Create and add to manifest
         run: |
-          buildah manifest create ${{ env.IMAGE_NAME }}
+          
           buildah manifest add ${{ env.IMAGE_NAME }} ${{ steps.build_image_platform_amd64.outputs.image }}
           buildah manifest add ${{ env.IMAGE_NAME }} ${{ steps.build_image_platform_ppc64le.outputs.image }}
       - name: Push manifest
