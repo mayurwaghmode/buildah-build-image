@@ -1,6 +1,11 @@
 name: Multiarch build
 on:
   push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # every day at midnight
+
   
 env:
   IMAGE_TAG: latest
@@ -19,19 +24,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: ["linux/ppc64le" , "linux/amd64"]
-    steps:
-
-      # Checkout buildah action github repository
-      - name: Checkout Buildah action
-        uses: actions/checkout@v2
-        with:
-          path: "buildah-build-image"
-
-      - name: Install latest buildah
-        if: matrix.install_latest
-        run: |
-          bash buildah-build-image/.github/install_latest_buildah.sh
-          
+    steps:          
       - name: Install qemu dependency
         run: |
           sudo apt-get update
@@ -81,9 +74,7 @@ jobs:
           registry: quay.io
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_PWD }}
-     
-     
-   
+          
             
       - name: Create and add to manifest
         run: |
