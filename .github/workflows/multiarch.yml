@@ -30,9 +30,8 @@ jobs:
       - name: Create Containerfile
         run: |
           cat > Containerfile<<EOF
-          FROM docker.io/alpine:3.14
-          RUN echo "hello world"
-          ENTRYPOINT [ "sh", "-c", "echo -n 'Machine: ' && uname -m && echo -n 'Bits: ' && getconf LONG_BIT && echo 'goodbye world'" ]
+          FROM ubuntu:20.04
+          CMD echo "Hello World from a container running on $(uname -m);"
           EOF
         # Authenticate to container image registry to push the image
       - name: Podman Login
@@ -78,7 +77,7 @@ jobs:
           image: ${{ steps.build_image_multiplatform.outputs.image }}
           tags: ${{ steps.build_image_multiplatform.outputs.tags }}
           registry: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAMESPACE }}
-          platform: ${{ matrix.platform }}
+          platform: linux/ppc64le, linux/amd64
           extra-args: |
             --disable-content-trust
             
