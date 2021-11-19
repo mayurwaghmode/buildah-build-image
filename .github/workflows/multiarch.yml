@@ -60,7 +60,7 @@ jobs:
         with:
           image: ${{ env.IMAGE_NAME }}
           tags:  ${{ env.IMAGE_TAG }}
-          platforms: linux/ppc64le, linux/amd64
+          archs: amd64, ppc64le
           containerfiles: |
             ./Containerfile
             
