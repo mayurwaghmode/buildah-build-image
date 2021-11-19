@@ -5,7 +5,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *'  # every day at midnight
-
   
 env:
   IMAGE_TAG: latest
@@ -48,7 +47,7 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           image: ${{ env.IMAGE_NAME }}
-          tag: quay.io/mayurwaghmode111/hello-world-multiarch:latest
+          tag:  ${{ env.IMAGE_TAG }}
           platforms: linux/amd64, linux/ppc64le
           push: true
           containerfiles: |
